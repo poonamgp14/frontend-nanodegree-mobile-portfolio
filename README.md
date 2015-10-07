@@ -1,73 +1,52 @@
-## Website Performance Optimization portfolio project
+#Steps required to run the application
 
-Your challenge, if you wish to accept it (and we sure hope you will), is to optimize this online portfolio for speed! In particular, optimize the critical rendering path and make this page render as quickly as possible by applying the techniques you've picked up in the [Critical Rendering Path course](https://www.udacity.com/course/ud884).
+Optimized files are located in **dist** folder for both parts of the project. 
 
-To get started, check out the repository, inspect the code,
+1.To run the speed score from PageSpeed Insights, a local server  is required to expose the project files to internet and you can run a local server
 
-### Getting started
+```
+$> cd /path/to/your-project-folder
+$> python -m SimpleHTTPServer 8080
+```
+2. Open another terminal window and make your local server accessible remotely.(ngrok file is already available in dest folder)
 
-####Part 1: Optimize PageSpeed Insights score for index.html
+```
+$> cd /path/to/your-project-folder
+$> ./ngrok http 8080
+```
 
-Some useful tips to help you get started:
+#Optimization steps for increasing PageSpeed score
+-Inlined the minified CSS style.css file and loading the CSS asynchronously using gulp-critical plugin.
+- Added `media="print"' for non-render blocking CSS resources.
+- Added `async` attribute on script tag for JS files which are not manipulating DOM.
+- Reduced the size of pizzeria.jpg image using grunt-responsive image plugin
+- Used Web font loader JS library for loading google font and loading the web font asynchronously.
 
-1. Check out the repository
-1. To inspect the site on your phone, you can run a local server
 
-  ```bash
-  $> cd /path/to/your-project-folder
-  $> python -m SimpleHTTPServer 8080
-  ```
+#Optimization steps for pizza.html
+Steps taken to optimize the web page for 60FPS (frames per second) during scroll event are as follows:-(**pizza.html file is located in *dist* folder**).
 
-1. Open a browser and visit localhost:8080
-1. Download and install [ngrok](https://ngrok.com/) to make your local server accessible remotely.
+##Reducing the Scripting Time
 
-  ``` bash
-  $> cd /path/to/your-project-folder
-  $> ngrok 8080
-  ```
+- Reducing the number of sliding pizza from 200 to 25. Dynamically creating sliding pizza based on the size of the screen of the device.
 
-1. Copy the public URL ngrok gives you and try running it through PageSpeed Insights! Optional: [More on integrating ngrok, Grunt and PageSpeed.](http://www.jamescryer.com/2014/06/12/grunt-pagespeed-and-ngrok-locally-testing/)
+-Replacing `document.querySelectorAll()` with `document.getElementsByClassName/ document.document.getElementById`. `document.querySelectorAll()` is slower as it returns a `StaticNodeList` that is just a snapshot of DOM unaffected by changes. Whereas, document.getElementsByClassName/ document.document.getElementById` returns a `DynamicNodeList` which is a live version of DOM and changes to DOM will be automatically reflected in the collection.
 
-Profile, optimize, measure... and then lather, rinse, and repeat. Good luck!
+- `i % 5` will always return 0,1,2,3,4 reminder for every scroll and thus it is not necessary to calculate its value for 25 sliding pizzas during every scroll. Removing this line `var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));` inside the for-loop and creating an array of five unique values `i % 5` produces as shown below. 
 
-####Part 2: Optimize Frames per Second in pizza.html
+```
+for (var i = 0; i < 5; i++){
+    phase.push(Math.sin(docScroll + i) * 300);
+  }
+```
 
-To optimize views/pizza.html, you will need to modify views/js/main.js until your frames per second rate is 60 fps or higher. You will find instructive comments in main.js. 
+##Reducing the Painting Time:
 
-You might find the FPS Counter/HUD Display useful in Chrome developer tools described here: [Chrome Dev Tools tips-and-tricks](https://developer.chrome.com/devtools/docs/tips-and-tricks).
+-Changing the width of every sliding pizza which will trigger layout changes and hence also triggers paint changes on the whole HTML document. Painting the whole document for every pizza leads to bad performance. This can be solved if forcing each sliding pizza to paint on its own composite layer by the use of `transform: translate3d(0,0,0);`. 
 
-### Optimization Tips and Tricks
-* [Optimizing Performance](https://developers.google.com/web/fundamentals/performance/ "web performance")
-* [Analyzing the Critical Rendering Path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/analyzing-crp.html "analyzing crp")
-* [Optimizing the Critical Rendering Path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/optimizing-critical-rendering-path.html "optimize the crp!")
-* [Avoiding Rendering Blocking CSS](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/render-blocking-css.html "render blocking css")
-* [Optimizing JavaScript](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript.html "javascript")
-* [Measuring with Navigation Timing](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/measure-crp.html "nav timing api"). We didn't cover the Navigation Timing API in the first two lessons but it's an incredibly useful tool for automated page profiling. I highly recommend reading.
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/eliminate-downloads.html">The fewer the downloads, the better</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/optimize-encoding-and-transfer.html">Reduce the size of text</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization.html">Optimize images</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching.html">HTTP caching</a>
+Transform CSS property tend to be more performant than other layout changes because Transform do not affect any other element so no element in the vicinity gets affected. and browser only repaints the part of the screen that contains transformed content.
 
-### Customization with Bootstrap
-The portfolio was built on Twitter's <a href="http://getbootstrap.com/">Bootstrap</a> framework. All custom styles are in `dist/css/portfolio.css` in the portfolio repo.
+Furthermore, with **tanslate3d** transform, your animation is run in hardware mode on the GPU(Graphics Processing Unit) and thus frees up CPU of the device to handle other tasks.Thus, with this particular transform, you get the added advantage of having all of the work be done by GPU.
 
-* <a href="http://getbootstrap.com/css/">Bootstrap's CSS Classes</a>
-* <a href="http://getbootstrap.com/components/">Bootstrap's Components</a>
 
-### Sample Portfolios
-
-Feeling uninspired by the portfolio? Here's a list of cool portfolios I found after a few minutes of Googling.
-
-* <a href="http://www.reddit.com/r/webdev/comments/280qkr/would_anybody_like_to_post_their_portfolio_site/">A great discussion about portfolios on reddit</a>
-* <a href="http://ianlunn.co.uk/">http://ianlunn.co.uk/</a>
-* <a href="http://www.adhamdannaway.com/portfolio">http://www.adhamdannaway.com/portfolio</a>
-* <a href="http://www.timboelaars.nl/">http://www.timboelaars.nl/</a>
-* <a href="http://futoryan.prosite.com/">http://futoryan.prosite.com/</a>
-* <a href="http://playonpixels.prosite.com/21591/projects">http://playonpixels.prosite.com/21591/projects</a>
-* <a href="http://colintrenter.prosite.com/">http://colintrenter.prosite.com/</a>
-* <a href="http://calebmorris.prosite.com/">http://calebmorris.prosite.com/</a>
-* <a href="http://www.cullywright.com/">http://www.cullywright.com/</a>
-* <a href="http://yourjustlucky.com/">http://yourjustlucky.com/</a>
-* <a href="http://nicoledominguez.com/portfolio/">http://nicoledominguez.com/portfolio/</a>
-* <a href="http://www.roxannecook.com/">http://www.roxannecook.com/</a>
-* <a href="http://www.84colors.com/portfolio.html">http://www.84colors.com/portfolio.html</a>
+Thus, when we scroll, the browser will only repaint the pixels that are affected by the moving pizza, and therefore will not repaint the whole screen and also reducing the total paint time drastically and increasing FPS. 

@@ -1,0 +1,27 @@
+{
+  "name": "frontend-nanodegree-mobile-portfolio",
+  "version": "1.0.0",
+  "description": "optimize website p4",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poonamgp14/frontend-nanodegree-mobile-portfolio.git"
+  },
+  "author": "Poonam Gupta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/poonamgp14/frontend-nanodegree-mobile-portfolio/issues"
+  },
+  "homepage": "https://github.com/poonamgp14/frontend-nanodegree-mobile-portfolio#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-responsive-images": "^0.1.6",
+    "gulp": "^3.9.0"
+  },
+  "dependencies": {
+    "critical": "^0.6.0"
+  }
+}
